@@ -28,7 +28,7 @@ plugin.commands['/melonbullets'] = {
 
 
 function plugin.hooks.PostBulletCreate(bullet)
-    if melonbullets == true then 
+    if melonbullets == true and bullet.player.isBot == false then 
         local itm = items.create(itemTypes.getByName("Watermelon"), bullet.pos, yawToRotMatrix(bullet.player.human.viewYaw))
         itm.rigidBody.vel:add(Vector(bullet.vel.x / 50, (bullet.vel.y / 80)+0.12, bullet.vel.z / 50))
         itm.data.isBulletMelon = true
