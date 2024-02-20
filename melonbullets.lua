@@ -10,33 +10,31 @@ local melonbullets
 
 
 plugin.commands['/melonbullets'] = {
-  info = 'turns on melon bullets',
+  info = 'Turns on melon bullets',
   canCall = function (ply) return ply.isAdmin end,
   ---@param ply Player
   call = function (ply)
-
         if melonbullets ~= true then 
             melonbullets = true 
             ply:sendMessage("Melon bullets enabled")
         elseif melonbullets == true then
             melonbullets = false
             ply:sendMessage("Melon bullets disabled")
-        end 
-
-  end
+end
+end
 }
 
-
 function plugin.hooks.PostBulletCreate(bullet)
-    if melonbullets == true and bullet.player.isBot == false then 
-        local itm = items.create(itemTypes.getByName("Watermelon"), bullet.pos, yawToRotMatrix(bullet.player.human.viewYaw), math.random(0,5))
-        itm.rigidBody.vel:add(Vector(bullet.vel.x / 7, bullet.vel.y / 7, bullet.vel.z / 7))
+    if melonbullets == true and bullet.player.isBot == false then
+        local itm = items.create(itemTypes.getByName("Watermelon"), bullet.pos, yawToRotMatrix(bullet.player.human.viewYaw))
+        itm.rigidBody.vel:add(Vector(bullet.vel.x / 50, (bullet.vel.y / 80)+0.12, bullet.vel.z / 50))
         itm.data.isBulletMelon = true
+        if itm then
+        itm.data.melonBomb = true
+        itm.data.melonFuse = 188
     end
-
-
-end       
-
+end      
+end
 
 function plugin.hooks.Logic()
     for _, itm in ipairs(items.getAll()) do
@@ -60,6 +58,22 @@ function plugin.hooks.Logic()
         end
     end
 
-
-
+plugin:addHook('Logic', function()
+ for _, itm in ipairs(items.getAll()) do
+        if itm.data.melonBomb then
+ 			if itm.data.melonFuse == 0 then
+                events.createExplosion(itm.pos)
+events.createSound(48, itm.pos, 10.0, 0.25) 
+                itm:explode()
+				itm:speak("Boom", 2)	
+			    itm:remove()
+            else
+				if itm.data.melonFuse % 63 == 0 then 
+               		itm:speak(math.ceil(itm.data.melonFuse*1.5873015873) / 100, 1) 
+				end
+                itm.data.melonFuse = itm.data.melonFuse - 1
+              end
+		end
+	end
+end)
 end
